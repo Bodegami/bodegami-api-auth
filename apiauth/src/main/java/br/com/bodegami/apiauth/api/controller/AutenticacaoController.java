@@ -1,6 +1,7 @@
 package br.com.bodegami.apiauth.api.controller;
 
 import br.com.bodegami.apiauth.api.domain.DadosAutenticacao;
+import br.com.bodegami.apiauth.api.infra.security.DadosTokenJWT;
 import br.com.bodegami.apiauth.api.domain.Usuario;
 import br.com.bodegami.apiauth.api.infra.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +25,12 @@ public class AutenticacaoController {
     private TokenService tokenService;
 
     @PostMapping
-    public ResponseEntity<String> efetuarLogin(@RequestBody DadosAutenticacao dados) {
-        var token = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
-        Authentication authentication = manager.authenticate(token);
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+    public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody DadosAutenticacao dados) {
+        var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
+        Authentication authentication = manager.authenticate(authenticationToken);
+        var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
 
-        return ResponseEntity.ok(tokenService.gerarToken(usuario));
+        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
     }
 
 }
