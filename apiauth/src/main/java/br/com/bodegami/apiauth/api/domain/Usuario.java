@@ -1,4 +1,4 @@
-package br.com.bodegami.apiauth.core.model;
+package br.com.bodegami.apiauth.api.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
