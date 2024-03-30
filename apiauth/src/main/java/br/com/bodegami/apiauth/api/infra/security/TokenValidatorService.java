@@ -1,45 +1,50 @@
 package br.com.bodegami.apiauth.api.infra.security;
 
 import br.com.bodegami.apiauth.api.domain.Usuario;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
+import br.com.bodegami.apiauth.api.domain.UsuarioRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Map;
 
-
 @Service
-public class TokenService {
-
-    @Value("${api.security.token.secret}")
-    private String secret;
+public class TokenValidatorService {
 
     @Autowired
-    private TokenValidatorService validatorService;
-
-    public String gerarToken(Usuario usuario) {
-        try {
-            var algoritmo = Algorithm.HMAC256(secret);
-            return JWT.create()
-                    .withIssuer("API-AUTH")
-                    .withSubject(usuario.getLogin())
-                    .withExpiresAt(dataExpiracao())
-                    .withClaim("id", usuario.getId())
-                    .sign(algoritmo);
-        } catch (JWTCreationException exception){
-            throw new RuntimeException("erro ao gerrar token jwt", exception);
-        }
-    }
+    private UsuarioRepository repository;
 
     public void validarToken(String token) {
-        validatorService.validarToken(token);
+        try {
+            String[] parts = token.split("\\.");
+            Map<String, Object> mapHeader = getHeader(parts[0]);
+            Map<String, Object> mapPayload = getPayload(parts[1]);
+
+            if (isTokenExpired(mapPayload. get("exp").toString())) {
+                //TODO retornar exception
+            }
+
+            UserDetails usuario = repository.findByLogin(mapPayload.get("sub").toString());
+            System.out.println((Usuario) usuario);
+
+
+            String signature = decode(parts[2]);
+            System.out.println(mapHeader);
+            System.out.println(mapPayload);
+        }
+        catch (Exception e) {
+            //TODO retornar exception
+        }
+
+
+
     }
+
 
     private Instant dataExpiracao() {
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
