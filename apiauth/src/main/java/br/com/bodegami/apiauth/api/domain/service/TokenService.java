@@ -1,6 +1,6 @@
-package br.com.bodegami.apiauth.api.infra.security;
+package br.com.bodegami.apiauth.api.domain.service;
 
-import br.com.bodegami.apiauth.api.domain.Usuario;
+import br.com.bodegami.apiauth.api.domain.model.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;

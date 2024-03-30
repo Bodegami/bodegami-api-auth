@@ -1,7 +1,8 @@
-package br.com.bodegami.apiauth.api.infra.security;
+package br.com.bodegami.apiauth.api.domain.service;
 
-import br.com.bodegami.apiauth.api.domain.Usuario;
+import br.com.bodegami.apiauth.api.domain.model.Usuario;
 import br.com.bodegami.apiauth.api.domain.UsuarioRepository;
+import br.com.bodegami.apiauth.api.domain.exception.InvalidTokenException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,26 +26,20 @@ public class TokenValidatorService {
             Map<String, Object> mapHeader = getHeader(parts[0]);
             Map<String, Object> mapPayload = getPayload(parts[1]);
 
-            if (isTokenExpired(mapPayload. get("exp").toString())) {
-                //TODO retornar exception
+            if (true) {
+                throw new InvalidTokenException("Token expirado!");
             }
 
             UserDetails usuario = repository.findByLogin(mapPayload.get("sub").toString());
             System.out.println((Usuario) usuario);
-
-
-            String signature = decode(parts[2]);
             System.out.println(mapHeader);
             System.out.println(mapPayload);
         }
         catch (Exception e) {
-            //TODO retornar exception
+            throw new InvalidTokenException(e.getMessage());
         }
 
-
-
     }
-
 
     private Instant dataExpiracao() {
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));

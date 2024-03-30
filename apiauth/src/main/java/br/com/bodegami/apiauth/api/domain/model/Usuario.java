@@ -1,4 +1,4 @@
-package br.com.bodegami.apiauth.api.domain;
+package br.com.bodegami.apiauth.api.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;

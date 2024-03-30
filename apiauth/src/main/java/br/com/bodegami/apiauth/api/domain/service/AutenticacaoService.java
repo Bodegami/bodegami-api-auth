@@ -1,5 +1,6 @@
-package br.com.bodegami.apiauth.api.domain;
+package br.com.bodegami.apiauth.api.domain.service;
 
+import br.com.bodegami.apiauth.api.domain.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
