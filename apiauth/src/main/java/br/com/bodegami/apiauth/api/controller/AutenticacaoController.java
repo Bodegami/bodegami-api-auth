@@ -1,37 +1,26 @@
 package br.com.bodegami.apiauth.api.controller;
 
-import br.com.bodegami.apiauth.api.domain.model.DadosAutenticacao;
-import br.com.bodegami.apiauth.api.domain.model.DadosTokenJWT;
-import br.com.bodegami.apiauth.api.domain.model.Usuario;
-import br.com.bodegami.apiauth.api.domain.service.TokenService;
+import br.com.bodegami.apiauth.api.domain.model.AuthenticationRequest;
+import br.com.bodegami.apiauth.api.domain.service.TokenValidatorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/authenticate")
 public class AutenticacaoController {
 
     @Autowired
-    private AuthenticationManager manager;
+    private TokenValidatorService service;
 
-    @Autowired
-    private TokenService tokenService;
+    @GetMapping()
+    public ResponseEntity<Boolean> isValid(@RequestBody AuthenticationRequest request) {
+        service.validarToken(request.token());
 
-    @PostMapping
-    public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody DadosAutenticacao dados) {
-        var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
-        Authentication authentication = manager.authenticate(authenticationToken);
-        var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
-        tokenService.validarToken(tokenJWT);
-
-        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
+        return ResponseEntity.ok(true);
     }
 
 }

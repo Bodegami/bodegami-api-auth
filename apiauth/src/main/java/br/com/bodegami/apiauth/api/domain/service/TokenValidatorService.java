@@ -1,16 +1,11 @@
 package br.com.bodegami.apiauth.api.domain.service;
 
-import br.com.bodegami.apiauth.api.domain.model.Usuario;
 import br.com.bodegami.apiauth.api.domain.UsuarioRepository;
 import br.com.bodegami.apiauth.api.domain.exception.InvalidTokenException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Map;
 
@@ -23,26 +18,17 @@ public class TokenValidatorService {
     public void validarToken(String token) {
         try {
             String[] parts = token.split("\\.");
-            Map<String, Object> mapHeader = getHeader(parts[0]);
             Map<String, Object> mapPayload = getPayload(parts[1]);
 
-            if (true) {
+            if (isTokenExpired(mapPayload.get("exp").toString())) {
                 throw new InvalidTokenException("Token expirado!");
             }
 
-            UserDetails usuario = repository.findByLogin(mapPayload.get("sub").toString());
-            System.out.println((Usuario) usuario);
-            System.out.println(mapHeader);
-            System.out.println(mapPayload);
+            repository.findByLogin(mapPayload.get("sub").toString());
         }
         catch (Exception e) {
             throw new InvalidTokenException(e.getMessage());
         }
-
-    }
-
-    private Instant dataExpiracao() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
 
     private String decode(String encodedString) {
