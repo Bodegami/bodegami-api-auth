@@ -1,10 +1,12 @@
 package br.com.bodegami.apiauth.api.infra.interceptor;
 
 import java.time.Instant;
+import java.util.List;
 
-public record StandardError(
+public record StandardErrors(
         Instant timestamp,
         Integer status,
-        String error,
-        String path) {
+        List<FieldError> errors,
+        String path
+) {
 }

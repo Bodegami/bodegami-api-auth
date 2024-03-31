@@ -1,4 +1,9 @@
 package br.com.bodegami.apiauth.api.domain.model;
 
-public record AuthenticationRequest(String token) {
+import jakarta.validation.constraints.NotBlank;
+
+public record AuthenticationRequest(
+        @NotBlank
+        String token
+) {
 }

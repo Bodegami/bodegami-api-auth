@@ -2,6 +2,7 @@ package br.com.bodegami.apiauth.api.controller;
 
 import br.com.bodegami.apiauth.api.domain.model.AuthenticationRequest;
 import br.com.bodegami.apiauth.api.domain.service.TokenValidatorService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,7 @@ public class AutenticacaoController {
     private TokenValidatorService service;
 
     @GetMapping()
-    public ResponseEntity<Boolean> isValid(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<Boolean> isValid(@RequestBody @Valid AuthenticationRequest request) {
         service.validarToken(request.token());
 
         return ResponseEntity.ok(true);
