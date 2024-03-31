@@ -1,8 +1,9 @@
 package br.com.bodegami.apiauth.api.infra.interceptor;
 
+import br.com.bodegami.apiauth.api.domain.exception.GenerateTokenFailException;
 import br.com.bodegami.apiauth.api.domain.exception.InvalidTokenException;
+import br.com.bodegami.apiauth.api.domain.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,26 +13,42 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.*;
+
 @RestControllerAdvice
 public class AutenticacaoExceptionHandler {
 
     @ExceptionHandler(value = InvalidTokenException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(FORBIDDEN)
     public ResponseEntity<StandardError> getInvalidTokenException(
             InvalidTokenException ex, HttpServletRequest request) {
-        int statusCode = 403;
-        StandardError responseError = createStandardError(ex, request, statusCode);
-        return ResponseEntity.status(statusCode).body(responseError);
+        StandardError responseError = createStandardError(ex, request, FORBIDDEN.value());
+        return ResponseEntity.status(FORBIDDEN).body(responseError);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<?> getMethodArgumentNotValidException(
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<StandardErrors> getMethodArgumentNotValidException(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
-        int status = 400;
-        StandardErrors responseError = createStandardErrors(ex, request, status);
-        return ResponseEntity.status(status).body(responseError);
+        StandardErrors responseError = createStandardErrors(ex, request, BAD_REQUEST.value());
+        return ResponseEntity.status(BAD_REQUEST).body(responseError);
 
+    }
+
+    @ExceptionHandler(value = ResourceNotFoundException.class)
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
+    public ResponseEntity<StandardError> getResourceNotFoundException(
+            ResourceNotFoundException ex, HttpServletRequest request) {
+        StandardError responseError = createStandardError(ex, request, UNPROCESSABLE_ENTITY.value());
+        return ResponseEntity.status(UNPROCESSABLE_ENTITY).body(responseError);
+    }
+
+    @ExceptionHandler(value = GenerateTokenFailException.class)
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
+    public ResponseEntity<StandardError> getGenerateTokenFailException(
+            GenerateTokenFailException ex, HttpServletRequest request) {
+        StandardError responseError = createStandardError(ex, request, UNPROCESSABLE_ENTITY.value());
+        return ResponseEntity.status(UNPROCESSABLE_ENTITY).body(responseError);
     }
 
     private StandardError createStandardError(Exception ex, HttpServletRequest request, int status) {

@@ -1,5 +1,6 @@
 package br.com.bodegami.apiauth.api.domain.service;
 
+import br.com.bodegami.apiauth.api.domain.exception.GenerateTokenFailException;
 import br.com.bodegami.apiauth.api.domain.model.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -26,7 +27,7 @@ public class TokenService {
                     .withClaim("id", usuario.getId())
                     .sign(algoritmo);
         } catch (JWTCreationException exception){
-            throw new RuntimeException("erro ao gerrar token jwt", exception);
+            throw new GenerateTokenFailException(exception.getMessage());
         }
     }
 
