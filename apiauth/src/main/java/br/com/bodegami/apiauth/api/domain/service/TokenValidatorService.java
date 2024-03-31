@@ -4,6 +4,7 @@ import br.com.bodegami.apiauth.api.domain.UsuarioRepository;
 import br.com.bodegami.apiauth.api.domain.exception.InvalidTokenException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
@@ -16,53 +17,67 @@ public class TokenValidatorService {
     private UsuarioRepository repository;
 
     public void validarToken(String token) {
-        try {
-            String[] parts = token.split("\\.");
-            Map<String, Object> mapHeaders = getDecodeToken(parts[0]);
-            Map<String, Object> mapPayload = getDecodeToken(parts[1]);
+        String[] parts = token.split("\\.");
+        Map<String, Object> mapHeaders = getDecodeToken(parts[0]);
+        Map<String, Object> mapPayload = getDecodeToken(parts[1]);
 
-            if (validatePayloadFields(mapPayload) && validateHeaderFields(mapHeaders)) {
-                throw new InvalidTokenException("Token expirado!");
-            }
+        validateHeaderFields(mapHeaders);
+        validatePayloadFields(mapPayload);
+        isTokenExpired(mapPayload.get("exp").toString());
 
-            repository.findByLogin(mapPayload.get("sub").toString());
-        }
-        catch (Exception e) {
-            throw new InvalidTokenException(e.getMessage());
-        }
+        validateUserLogin(mapPayload.get("sub").toString());
     }
 
     private String decode(String encodedString) {
         return new String(Base64.getUrlDecoder().decode(encodedString));
     }
 
-    private Map<String, Object> getDecodeToken(String headerToken) {
-        JSONObject headerJson = new JSONObject(decode(headerToken));
-        return headerJson.toMap();
+    private Map<String, Object> getDecodeToken(String token) {
+        try {
+            JSONObject decodeToken = new JSONObject(decode(token));
+            return decodeToken.toMap();
+        }
+        catch (Exception ex) {
+            throw new InvalidTokenException(ex.getMessage());
+        }
+
     }
 
-    private boolean isTokenExpired(String expiration) {
+    private void isTokenExpired(String expiration) {
         long exp = Long.parseLong(expiration);
-        return exp <= (System.currentTimeMillis() / 1000);
+
+        if (exp <= (System.currentTimeMillis() / 1000)) {
+            throw new InvalidTokenException("Token expirado!");
+        }
     }
 
-    private boolean validateHeaderFields(Map<String, Object> header) {
+    private void validateHeaderFields(Map<String, Object> header) {
         boolean isValidTyp = header.containsKey("typ") && header.get("typ").equals("JWT");
         boolean isValidAlg = header.containsKey("alg") && header.get("alg").equals("HS256");
 
-        return isValidTyp && isValidAlg;
+        if (!isValidTyp || !isValidAlg) {
+            throw new InvalidTokenException("Token Inválido!");
+        }
     }
 
-    private boolean validatePayloadFields(Map<String, Object> payload) {
+    private void validatePayloadFields(Map<String, Object> payload) {
         boolean isValidSub = payload.containsKey("sub");
         boolean isValidIssuer = payload.containsKey("iss") && payload.get("iss").equals("API-AUTH");
         boolean isValidId = payload.containsKey("id");
-        boolean isValidExpiration = payload.containsKey("exp") && isTokenExpired(payload.get("exp").toString());
+        boolean isValidExpiration = payload.containsKey("exp");
 
-        return isValidSub && isValidIssuer && isValidId && isValidExpiration;
+        if (!isValidSub || !isValidIssuer || !isValidId || !isValidExpiration) {
+            throw new InvalidTokenException("Token Inválido!");
+        }
     }
 
-    //TODO Da forma que está, ele só esta validando uma parte do body
-    //TODO validateBody && validateSignature
+    private void validateUserLogin(String login) {
+        try {
+            repository.findByLogin(login);
+        }
+        catch (UsernameNotFoundException usernameNotFoundException) {
+            throw new InvalidTokenException("Usuário inválido!");
+        }
+    }
 
 }
