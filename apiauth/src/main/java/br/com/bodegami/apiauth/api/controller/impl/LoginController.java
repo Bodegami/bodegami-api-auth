@@ -1,5 +1,6 @@
-package br.com.bodegami.apiauth.api.controller;
+package br.com.bodegami.apiauth.api.controller.impl;
 
+import br.com.bodegami.apiauth.api.controller.LoginControllerAbstract;
 import br.com.bodegami.apiauth.api.domain.model.DadosAutenticacao;
 import br.com.bodegami.apiauth.api.domain.model.DadosTokenJWT;
 import br.com.bodegami.apiauth.api.domain.model.Usuario;
@@ -26,6 +27,7 @@ public class LoginController extends LoginControllerAbstract {
     private TokenService tokenService;
 
     @PostMapping
+    @Override
     public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacao dados) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
         Authentication authentication = manager.authenticate(authenticationToken);

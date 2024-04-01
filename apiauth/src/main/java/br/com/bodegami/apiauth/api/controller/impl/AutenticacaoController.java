@@ -1,5 +1,6 @@
-package br.com.bodegami.apiauth.api.controller;
+package br.com.bodegami.apiauth.api.controller.impl;
 
+import br.com.bodegami.apiauth.api.controller.AutenticacaoControllerAbstract;
 import br.com.bodegami.apiauth.api.domain.model.AuthenticationRequest;
 import br.com.bodegami.apiauth.api.domain.model.AuthenticationResponse;
 import br.com.bodegami.apiauth.api.domain.service.TokenValidatorService;
@@ -22,6 +23,7 @@ public class AutenticacaoController extends AutenticacaoControllerAbstract {
     @Autowired
     private TokenValidatorService service;
 
+    @Override
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthenticationResponse> isValid(@RequestBody @Valid AuthenticationRequest request) {
         service.validarToken(request.token());
